@@ -1,0 +1,6 @@
+BUILD_DIR = build
+SRC_DIR = src
+C_FLAGS = -Wall -I$(SRC_DIR)/include -g3 -DSPLA_DEBUG=1 -DSPLA_TESTING=1
+LD_FLAGS = 
+LANG := C
+LD = $(CC)
