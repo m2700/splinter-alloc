@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <strings.h>
 
+#include "bitidx.h"
 #include "config.h"
 
 typedef struct spla_block spla_block;
@@ -36,19 +37,13 @@ typedef struct splinter_alloc {
 #define BLCK_ALIGN_TO_FL_IDX(blck_align) ((blck_align)-SPLA_MIN_ALIGNMENT_SHIFT)
 
 /// x must not be 0
-/// the most significant bit of x must be 0
-#define GE_POW2_SHIFT(x) flsll(((long long)x) - 1)
-/// returns 1 for x = 0
-/// the most significant bit of x must be 0
-#define GE_POW2(x) ((size_t)1 << GE_POW2_SHIFT(x))
+#define GE_POW2_SHIFT(x) ((x) == 1 ? 0 : sizeof(long) * 8 - clz((long)(x) - 1))
+/// returns 0 for x = 0
+#define GE_POW2(x) ((x) == 0 ? 0 : (size_t)1 << GE_POW2_SHIFT(x))
 
 /// x must not be 0
-/// the most significant bit of x must be 0
-#define LE_POW2_SHIFT(x) (flsll(x) - 1)
+#define LE_POW2_SHIFT(x) (sizeof(long) * 8 - clz((long)(x)) - 1)
 /// returns 0 for x = 0
-/// the most significant bit of x must be 0
-#define LE_POW2(x) (((size_t)1 << flsll(x)) >> 1)
+#define LE_POW2(x) ((x) == 0 ? 0 : (size_t)1 << LE_POW2_SHIFT(x))
 
-/// the most significant bit of x must be 0
-#define MAX_ALIGN_OF(x)                                                        \
-    ((x) == 0 ? sizeof(size_t) * 8 - 1 : ffsll((long long)x) - 1)
+#define MAX_ALIGN_OF(x) ((x) == 0 ? sizeof(size_t) * 8 - 1 : ctz((long)(x)))
