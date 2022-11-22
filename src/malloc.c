@@ -8,11 +8,7 @@
 
 static void *spla_pop_free_block(splinter_alloc *spla_alloc, unsigned *fl_idx) {
     if (*fl_idx >= SPLA_NUM_BLOCK_SIZES) {
-        unsigned blck_size = FL_IDX_TO_BLCK_SIZE(*fl_idx);
-        unsigned num_pages = blck_size >> SPLA_PAGE_SHIFT;
-        DBG_FN1(request_pages, ("%u", num_pages));
-        return spla_alloc->palloc_f(spla_alloc->pallocator,
-                                    blck_size >> SPLA_PAGE_SHIFT);
+        return NULL;
     }
 
     spla_block **block = &spla_alloc->free_blocks[*fl_idx];
@@ -27,7 +23,7 @@ static void *spla_pop_free_block(splinter_alloc *spla_alloc, unsigned *fl_idx) {
         *block = (*block)->next;
         spla_check(spla_alloc);
         SPLA_UNLOCK_ATOMIC;
-        
+
         return popped_block;
     }
 }
@@ -39,7 +35,15 @@ static void *spla_malloc_area(splinter_alloc *spla_alloc, size_t *size) {
 
     void *ptr = spla_pop_free_block(spla_alloc, &fl_idx);
 
-    *size = FL_IDX_TO_BLCK_SIZE(fl_idx);
+    if (ptr == NULL) {
+        assert(fl_idx >= SPLA_NUM_BLOCK_SIZES);
+        *size = ALIGN_UP(*size, SPLA_PAGE_SHIFT);
+        unsigned num_pages = *size >> SPLA_PAGE_SHIFT;
+        DBG_FN1(request_pages, ("%u", num_pages));
+        return spla_alloc->palloc_f(spla_alloc->pallocator, num_pages);
+    } else {
+        *size = FL_IDX_TO_BLCK_SIZE(fl_idx);
+    }
 
     return ptr;
 }
@@ -50,6 +54,9 @@ void *spla_malloc(splinter_alloc *spla_alloc, size_t size) {
 
     size_t alloc_size = size + sizeof(size_t);
     void *ptr = spla_malloc_area(spla_alloc, &alloc_size);
+    if (ptr == NULL) {
+        return NULL;
+    }
     void *limit = ptr + alloc_size;
 
     *(size_t *)ptr = size;
@@ -70,9 +77,11 @@ void *spla_memalign(splinter_alloc *spla_alloc, size_t align, size_t size) {
     assert(sizeof(size_t) <= (size_t)1 << SPLA_MIN_ALIGNMENT_SHIFT);
     size = ALIGN_UP(size, SPLA_MIN_ALIGNMENT_SHIFT);
 
-    size_t alloc_size =
-        ALIGN_UP_SIZE(sizeof(size_t), align) + ALIGN_UP_SIZE(size, align);
+    size_t alloc_size = ALIGN_UP_SIZE(sizeof(size_t), align) + ALIGN_UP_SIZE(size, align);
     void *alloc_ptr = spla_malloc_area(spla_alloc, &alloc_size);
+    if (alloc_ptr == NULL) {
+        return NULL;
+    }
     void *limit = alloc_ptr + alloc_size;
 
     void *ptr = ALIGN_UP_SIZE(alloc_ptr + sizeof(size_t), align);

@@ -7,9 +7,9 @@
 
 splinter_alloc *spla_init_alloc(void *pallocator, spla_palloc_func_t palloc_f,
                                 spla_pfree_func_t pfree_f) {
-    size_t num_needed_pages =
-        DIV_SHIFT_CEIL(sizeof(splinter_alloc), SPLA_PAGE_SHIFT);
+    size_t num_needed_pages = DIV_SHIFT_CEIL(sizeof(splinter_alloc), SPLA_PAGE_SHIFT);
     void *free_mem_ptr = palloc_f(pallocator, num_needed_pages);
+    assert(free_mem_ptr != NULL);
     void *free_limit = free_mem_ptr + (num_needed_pages << SPLA_PAGE_SHIFT);
 
     splinter_alloc *spla_alloc = free_mem_ptr;
