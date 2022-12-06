@@ -285,7 +285,7 @@ void pfree(void *pa, void *ptr, size_t num_pages) {
     {                                                                                              \
         page_allocator_free(pallocator);                                                           \
         pallocator = page_allocator_new(palloc_size);                                              \
-        spla_alloc = spla_init_alloc(pallocator, sizeof(*(pallocator)), palloc, pfree);            \
+        spla_alloc = spla_init_alloc(pallocator, 0, palloc, pfree);                                \
     }
 
 int main(int argc, char const *argv[]) {
@@ -296,8 +296,7 @@ int main(int argc, char const *argv[]) {
         size_t palloc_page_num = randint(2, PAGE_PTR_CACHE_CAP);
         size_t palloc_size = palloc_page_num << 12;
         page_allocator *pallocator = page_allocator_new(palloc_size);
-        splinter_alloc *spla_alloc =
-            spla_init_alloc(pallocator, sizeof(*pallocator), palloc, pfree);
+        splinter_alloc *spla_alloc = spla_init_alloc(pallocator, 0, palloc, pfree);
 
         // unsigned block_count = randint(1, pallocator->free_size / 24);
         unsigned block_count_half = randint(1, pallocator->free_size / 24 / 2);
