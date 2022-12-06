@@ -20,7 +20,7 @@ void pfree(void *pallocator, void *ptr, size_t num_pages) {
 }
 
 int main(int argc, char const *argv[]) {
-    splinter_alloc *spla_alloc = spla_init_alloc(NULL, palloc, pfree);
+    splinter_alloc *spla_alloc = spla_init_alloc(NULL, 0, palloc, pfree);
 
     void *ptrs[10];
     size_t alloc_idx = 0;
