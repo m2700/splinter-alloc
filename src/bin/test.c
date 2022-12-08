@@ -2,7 +2,7 @@
 #include <splinter-alloc.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <strings.h>
+#include <string.h>
 
 void *palloc(void *pallocator, size_t num_pages) {
     printf("num_pages:\t%lu\n", num_pages);

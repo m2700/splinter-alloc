@@ -2,7 +2,7 @@
 
 #include <splinter-alloc.h>
 #include <stddef.h>
-#include <strings.h>
+#include <string.h>
 
 #include "bitidx.h"
 #include "config.h"
