@@ -22,8 +22,8 @@
 
 #else // SPLA_DEBUG
 
-#define DBG(t, x)                                                                                  \
-    UNUSED(t);                                                                                     \
+#define DBG(f, x)                                                                                  \
+    UNUSED(f);                                                                                     \
     UNUSED(x)
 #define DBG_FN1(fn, x1) DBG x1
 #define DBG_FN2(fn, x1, x2)                                                                        \
