@@ -15,7 +15,8 @@ endif # SRC_EXT
 MK_FILES = Makefile $(wildcard *.mk)
 
 BIN_SRCS = $(wildcard $(SRC_DIR)/bin/*.$(SRC_EXT))
-LIB_SRCS = $(wildcard $(SRC_DIR)/*.$(SRC_EXT))
+LIB_SRCS = $(wildcard $(SRC_DIR)/*.$(SRC_EXT)) \
+		   $(foreach SD,$(SUB_SRC_DIRS),$(wildcard $(SRC_DIR)/$(SD)/*.$(SRC_EXT)))
 SRCS = $(BIN_SRCS) $(LIB_SRCS)
 
 src2obj = $(1:$(SRC_DIR)/%.$(SRC_EXT)=$(BUILD_DIR)/obj/%.o)
@@ -40,5 +41,7 @@ ORPHAN_DEPS := $(strip $(foreach dep,$(EXISTING_DEPS),$(if $(wildcard $(call dep
 BINS = $(call obj2bin,$(BIN_OBJS))
 BIN_NAMES = $(call bin2name,$(BINS))
 
-BUILD_CATEGORIES = obj obj/bin dep dep/bin bin
-SUB_BUILD_DIRS = $(BUILD_CATEGORIES:%=$(BUILD_DIR)/%)
+BUILD_ARTEFACT_CATEGORIES = obj dep
+BUILD_CATEGORIES = $(BUILD_ARTEFACT_CATEGORIES) $(BUILD_ARTEFACT_CATEGORIES:%=%/bin) bin
+SUB_BUILD_DIRS = $(addprefix $(BUILD_DIR)/,$(BUILD_CATEGORIES) \
+				   $(foreach SD,$(SUB_SRC_DIRS),$(BUILD_ARTEFACT_CATEGORIES:%=%/$(SD))))

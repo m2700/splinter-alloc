@@ -1,8 +1,6 @@
 .PHONY: all
 all: $(BINS)
 
--include $(DEPS)
-
 define dir_dependency_rule =
 $(call dep2obj,$1): | $(patsubst %/,%,$(dir $1))
 endef
@@ -13,12 +11,17 @@ $(BUILD_DIR) $(SUB_BUILD_DIRS):
 
 $(OBJS): $(MK_FILES)
 
-$(BUILD_DIR)/obj/%.o: $(SRC_DIR)/%.$(SRC_EXT)
+-include $(DEPS)
+
+# for not existing dependency files (needed by obj rule)
+$(foreach D,$(DEPS),$(eval $D:))
+
+$(BUILD_DIR)/obj/%.o: $(SRC_DIR)/%.$(SRC_EXT) $(BUILD_DIR)/dep/%.d
 ifeq ($(LANG),C)
-	$(CC) $(C_FLAGS) -Wp,-MD,$(call src2dep,$<) -c $< -o $@
+	$(CC) $(C_FLAGS) -MD -MP -MF$(call src2dep,$<) -MT$@ -c $< -o $@
 endif
 ifeq ($(LANG),C++)
-	$(CXX) $(CXX_FLAGS) -Wp,-MD,$(call src2dep,$<) -c $< -o $@
+	$(CXX) $(CXX_FLAGS) -MD -MP -MF$(call src2dep,$<) -MT$@ -c $< -o $@
 endif
 
 $(BUILD_DIR)/bin/%: $(BUILD_DIR)/obj/bin/%.o $(LIB_OBJS)
