@@ -1,12 +1,19 @@
 #include <splinter-alloc.h>
 
 #include "check.h"
+#include "config.h"
 #include "debug.h"
 #include "iter_free_blocks.h"
 
 #if SPLA_TESTING
 
 void spla_check(splinter_alloc *spla_alloc) {
+
+    if (SPLA_SORT_COMPACT_TRIES != -1) {
+        // FIXME: support partially sorted free lists
+        return;
+    }
+
     void *last_limit = NULL;
     FOREACH_FREE_BLOCK(free_blocks, spla_alloc, min_fl_idx) {
         if (last_limit > (void *)free_blocks[min_fl_idx]) {

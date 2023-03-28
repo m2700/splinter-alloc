@@ -4,11 +4,11 @@
 
 #include "alloc.h"
 #include "check.h"
+#include "config.h"
 #include "debug.h"
 #include "free.h"
 
-static void spla_insert_free_block(splinter_alloc *spla_alloc, void *ptr,
-                                   unsigned blck_align) {
+static void spla_insert_free_block(splinter_alloc *spla_alloc, void *ptr, unsigned blck_align) {
     if (blck_align >= SPLA_PAGE_SHIFT) {
         size_t page_num = (size_t)1 << (blck_align - SPLA_PAGE_SHIFT);
         DBG_FN2(return_pages, ("0x%012lx", (size_t)ptr), ("%lu", page_num));
@@ -22,9 +22,19 @@ static void spla_insert_free_block(splinter_alloc *spla_alloc, void *ptr,
 
     char compact_first = MAX_ALIGN_OF(ptr) > blck_align;
 
+#if SPLA_SORT_COMPACT_TRIES != -1
+    size_t sort_compact_tries_left = SPLA_SORT_COMPACT_TRIES;
+#endif
+
     spla_block **block;
     for (block = &spla_alloc->free_blocks[fl_idx]; *block != NULL;
          block = &(*block)->next) {
+#if SPLA_SORT_COMPACT_TRIES != -1
+        if (sort_compact_tries_left-- == 0) {
+            break;
+        }
+#endif
+
         if (!compact_first && (void *)*block + blck_size == ptr) {
             DBG_FN2(block_compaction, ("0x%012lx..", (size_t)*block),
                     ("0x%012lx..", (size_t)ptr));

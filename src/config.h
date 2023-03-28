@@ -52,3 +52,7 @@
 #ifndef SPLA_ALLOCATE_EXACT
 #define SPLA_ALLOCATE_EXACT 0
 #endif
+
+#ifndef SPLA_SORT_COMPACT_TRIES
+#define SPLA_SORT_COMPACT_TRIES -1
+#endif
