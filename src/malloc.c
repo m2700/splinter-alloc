@@ -63,7 +63,7 @@ void *spla_malloc(splinter_alloc *spla_alloc, size_t size) {
 
 #if !SPLA_ALLOCATE_EXACT
     size_t min_alloc_size_2p = GE_POW2(min_alloc_size);
-    if (min_alloc_size_2p < alloc_size) {
+    if (min_alloc_size_2p <= alloc_size) {
         size = min_alloc_size_2p - sizeof(size_t);
     }
 #endif
@@ -86,8 +86,7 @@ void *spla_memalign(splinter_alloc *spla_alloc, size_t align, size_t size) {
     assert(sizeof(size_t) <= (size_t)1 << SPLA_MIN_ALIGNMENT_SHIFT);
     size = ALIGN_UP(size, SPLA_MIN_ALIGNMENT_SHIFT);
 
-    const size_t min_alloc_size = ALIGN_UP_SIZE(sizeof(size_t), align) + ALIGN_UP_SIZE(size, align);
-    size_t alloc_size = min_alloc_size;
+    size_t alloc_size = ALIGN_UP_SIZE(sizeof(size_t), align) + ALIGN_UP_SIZE(size, align);
     void *alloc_ptr = spla_malloc_area(spla_alloc, &alloc_size);
     if (alloc_ptr == NULL) {
         return NULL;
@@ -98,9 +97,9 @@ void *spla_memalign(splinter_alloc *spla_alloc, size_t align, size_t size) {
     size_t *size_ptr = (size_t *)ptr - 1;
 
 #if !SPLA_ALLOCATE_EXACT
-    size_t min_alloc_size_2p = GE_POW2(min_alloc_size);
-    if (min_alloc_size_2p < limit - ptr) {
-        size = min_alloc_size_2p - sizeof(size_t);
+    const size_t post_ptr_alloc_size_2p = GE_POW2((size_t)(limit - ptr));
+    if (ptr + post_ptr_alloc_size_2p <= limit) {
+        size = post_ptr_alloc_size_2p;
     }
 #endif
 
