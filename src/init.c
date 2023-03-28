@@ -4,11 +4,13 @@
 
 #include "alloc.h"
 #include "config.h"
+#include "debug.h"
 #include "free.h"
 
 splinter_alloc *spla_init_alloc(void *pallocator, size_t pallocator_size,
                                 spla_palloc_func_t palloc_f, spla_pfree_func_t pfree_f) {
     size_t num_needed_pages = DIV_SHIFT_CEIL(sizeof(splinter_alloc), SPLA_PAGE_SHIFT);
+    DBG_FN1(request_init_pages, ("%lu", num_needed_pages));
     void *free_mem_ptr = palloc_f(pallocator, num_needed_pages);
     assert(free_mem_ptr != NULL);
     void *free_limit = free_mem_ptr + (num_needed_pages << SPLA_PAGE_SHIFT);
