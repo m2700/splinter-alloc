@@ -48,3 +48,7 @@
 #define SPLA_UNLOCK_ATOMIC
 #endif // SPLA_SINGLE_CPU
 #endif
+
+#ifndef SPLA_ALLOCATE_EXACT
+#define SPLA_ALLOCATE_EXACT 0
+#endif
