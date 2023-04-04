@@ -78,3 +78,21 @@ void spla_alloc_free_random(splinter_alloc *spla_alloc, size_t num_allocs, size_
     clock_gettime(CLOCK_MONOTONIC, &tp_e);
     FMT_NS("    free (s):", TIMESPEC_DIFF_NS(tp_s, tp_e), "\n");
 }
+
+void spla_alloc_scale(splinter_alloc *spla_alloc, size_t num_allocs, size_t block_size) {
+    printf("spla_alloc_scale(num_allocs: %lu, block_size: %lu):\n", num_allocs, block_size);
+
+    void *ptrs[num_allocs];
+    struct timespec tps_a[num_allocs], tpe_a[num_allocs];
+
+    for (size_t i = 0; i < num_allocs; i++) {
+        clock_gettime(CLOCK_MONOTONIC, &tps_a[i]);
+        ptrs[i] = spla_malloc(spla_alloc, block_size);
+        clock_gettime(CLOCK_MONOTONIC, &tpe_a[i]);
+        printf("    alloc[%lu] (s): ", i);
+        FMT_NS("", TIMESPEC_DIFF_NS(tps_a[i], tpe_a[i]), "\n");
+    }
+    for (size_t i = 0; i < num_allocs; i++) {
+        spla_free(spla_alloc, ptrs[i]);
+    }
+}
