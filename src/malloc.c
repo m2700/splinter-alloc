@@ -50,6 +50,10 @@ static void *spla_malloc_area(splinter_alloc *spla_alloc, size_t *size) {
 }
 
 void *spla_malloc(splinter_alloc *spla_alloc, size_t size) {
+    if (size == 0) {
+        return NULL;
+    }
+
     assert(sizeof(size_t) <= (size_t)1 << SPLA_MIN_ALIGNMENT_SHIFT);
     size = ALIGN_UP(size, SPLA_MIN_ALIGNMENT_SHIFT);
 
@@ -79,6 +83,9 @@ void *spla_malloc(splinter_alloc *spla_alloc, size_t size) {
 }
 
 void *spla_memalign(splinter_alloc *spla_alloc, size_t align, size_t size) {
+    if (size == 0) {
+        return NULL;
+    }
     if (LE_POW2(align) != align) {
         return NULL;
     }

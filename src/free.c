@@ -94,6 +94,9 @@ void spla_free_area(splinter_alloc *spla_alloc, void *ptr, void *limit) {
 }
 
 void spla_free(splinter_alloc *spla_alloc, void *ptr) {
+    if (ptr == NULL) {
+        return;
+    }
     ptr -= sizeof(size_t);
     size_t alloc_size = *(size_t *)ptr + sizeof(size_t);
     spla_free_area(spla_alloc, ptr, ptr + alloc_size);
