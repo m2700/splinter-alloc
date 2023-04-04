@@ -56,3 +56,7 @@
 #ifndef SPLA_SORT_COMPACT_TRIES
 #define SPLA_SORT_COMPACT_TRIES -1
 #endif
+
+#if SPLA_CONFIG_EXTENTION
+#include <splinter-alloc-config-ext.h>
+#endif
