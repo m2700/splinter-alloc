@@ -10,7 +10,7 @@ void spla_dump(splinter_alloc *spla_alloc) {
     void *last_limit = NULL;
     FOREACH_FREE_BLOCK(free_blocks, spla_alloc, min_fl_idx) {
         void *limit =
-            (void *)free_blocks[min_fl_idx] + FL_IDX_TO_BLCK_SIZE(min_fl_idx);
+            (char *)free_blocks[min_fl_idx] + FL_IDX_TO_BLCK_SIZE(min_fl_idx);
 
         if (last_limit != NULL &&
             last_limit == (void *)free_blocks[min_fl_idx]) {

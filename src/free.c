@@ -35,7 +35,7 @@ static void spla_insert_free_block(splinter_alloc *spla_alloc, void *ptr, unsign
         }
 #endif
 
-        if (!compact_first && (void *)*block + blck_size == ptr) {
+        if (!compact_first && (char *)*block + blck_size == ptr) {
             DBG_FN2(block_compaction, ("0x%012lx..", (size_t)*block),
                     ("0x%012lx..", (size_t)ptr));
 
@@ -58,8 +58,8 @@ static void spla_insert_free_block(splinter_alloc *spla_alloc, void *ptr, unsign
             return spla_insert_free_block(spla_alloc, ptr, blck_align + 1);
         }
 #if SPLA_TESTING
-        else if (((void *)*block < ptr && (void *)*block + blck_size > ptr) ||
-                 (ptr < (void *)*block && ptr + blck_size > (void *)*block)) {
+        else if (((char *)*block < ptr && (char *)*block + blck_size > ptr) ||
+                 (ptr < (char *)*block && ptr + blck_size > (void *)*block)) {
             DBG_ERR2(-1, overlapping_free_blocks, ("0x%012lx..", (size_t)ptr),
                      ("0x%012lx..", (size_t)*block));
         }

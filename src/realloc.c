@@ -18,9 +18,9 @@ void *spla_realloc(splinter_alloc *spla_alloc, void *ptr, size_t size) {
     size = ALIGN_UP(size, SPLA_MIN_ALIGNMENT_SHIFT);
 
     size_t *data_size = (size_t *)ptr - 1;
-    void *limit = ptr + *data_size;
     if (size <= *data_size) {
 #if SPLA_ALLOCATE_EXACT
+        void *limit = ptr + *data_size;
         // size is min aligned
         if (size < *data_size) {
             *data_size = size;
