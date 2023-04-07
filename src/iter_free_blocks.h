@@ -27,7 +27,8 @@ static inline size_t __first_block_idx(iter_block *blocks[SPLA_NUM_BLOCK_SIZES])
 #define FOREACH_FREE_BLOCK(free_blocks, spla_alloc, min_fl_idx)                                    \
     spla_avl_node *free_blocks[SPLA_NUM_BLOCK_SIZES];                                              \
     for (size_t fl_i = 0; fl_i < SPLA_NUM_BLOCK_SIZES; fl_i++) {                                   \
-        free_blocks[fl_i] = spla_alloc->free_blocks[fl_i]->first;                                   \
+        free_blocks[fl_i] =                                                                        \
+            spla_alloc->free_blocks[fl_i] == NULL ? NULL : spla_alloc->free_blocks[fl_i]->first;   \
     }                                                                                              \
     for (size_t min_fl_idx = __first_block_idx(free_blocks); free_blocks[min_fl_idx] != NULL; ({   \
              free_blocks[min_fl_idx] = free_blocks[min_fl_idx]->next;                              \

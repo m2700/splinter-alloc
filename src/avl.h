@@ -30,6 +30,8 @@ static inline spla_avl_node *spla_avl_tree_insert(spla_avl_tree **tree, spla_avl
     assert(tree != NULL);
     assert(node != NULL);
 
+    spla_avl_node *first = *tree == NULL ? NULL : (*tree)->first;
+
     spla_avl_node *compacted = spla_avl_insert((spla_avl_node **)tree, node, blck_align);
 
     if ((*tree)->root.parent != NULL) {
@@ -37,9 +39,10 @@ static inline spla_avl_node *spla_avl_tree_insert(spla_avl_tree **tree, spla_avl
     }
     assert((*tree)->root.parent == NULL);
 
-    assert((*tree)->first != NULL);
-    if ((*tree)->first->prev != NULL) {
-        (*tree)->first = (*tree)->first->prev;
+    if (first == NULL) {
+        (*tree)->first = &(*tree)->root;
+    } else if (first->prev != NULL) {
+        (*tree)->first = first->prev;
     }
     assert((*tree)->first->prev == NULL);
 
@@ -60,6 +63,7 @@ static inline spla_avl_node *spla_avl_tree_pop(spla_avl_tree **tree) {
 
     if (&(*tree)->root == first) {
         spla_avl_remove_root((spla_avl_node **)tree);
+
     } else {
         spla_avl_remove_first(first);
 
@@ -69,6 +73,8 @@ static inline spla_avl_node *spla_avl_tree_pop(spla_avl_tree **tree) {
         assert((*tree)->root.parent == NULL);
     }
 
-    (*tree)->first = next_first;
+    if (*tree != NULL) {
+        (*tree)->first = next_first;
+    }
     return first;
 }

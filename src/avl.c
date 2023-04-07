@@ -66,7 +66,8 @@ inline static bool is_compact_first(spla_avl_node *node, unsigned blck_align) {
 
 inline static bool can_compact(spla_avl_node *left_node, spla_avl_node *right_node,
                                size_t blck_size) {
-    assert(is_compact_first(left_node, MAX_ALIGN_OF(blck_size)));
+    assert(is_compact_first(left_node, MAX_ALIGN_OF(blck_size))
+           || !is_compact_first(right_node, MAX_ALIGN_OF(blck_size)));
     return (char *)left_node + blck_size == (char *)right_node;
 }
 
@@ -262,12 +263,13 @@ inline static spla_avl_node *tree_root_remove(spla_avl_node **root) {
 spla_avl_node *spla_avl_insert(spla_avl_node **root, spla_avl_node *node, unsigned blck_align) {
     assert(root != NULL);
     assert(node != NULL);
-    assert(node->left == NULL);
-    assert(node->right == NULL);
-    assert(node->next == NULL);
-    assert(node->prev == NULL);
-    assert(node->parent == NULL);
-    assert(node->height == 0);
+
+    node->left = NULL;
+    node->right = NULL;
+    node->next = NULL;
+    node->prev = NULL;
+    node->parent = NULL;
+    node->height = 0;
 
     if (*root == NULL) {
         *root = node;
@@ -295,7 +297,7 @@ spla_avl_node *spla_avl_insert(spla_avl_node **root, spla_avl_node *node, unsign
             } else {
                 size_t left_height = (*root)->left->height;
                 spla_avl_node *compact_node = spla_avl_insert(&(*root)->left, node, blck_align);
-                if ((*root)->left->height != left_height) {
+                if (TREE_HEIGHT((*root)->left) != left_height) {
                     rebalance(root);
                 }
                 return compact_node;
@@ -315,11 +317,10 @@ spla_avl_node *spla_avl_insert(spla_avl_node **root, spla_avl_node *node, unsign
                 list_insert_after(*root, node);
                 (*root)->height = 2;
                 return NULL;
-
             } else {
                 size_t right_height = (*root)->right->height;
                 spla_avl_node *compact_node = spla_avl_insert(&(*root)->right, node, blck_align);
-                if ((*root)->right->height != right_height) {
+                if (TREE_HEIGHT((*root)->right) != right_height) {
                     rebalance(root); // sets height
                 }
                 return compact_node;

@@ -10,6 +10,8 @@
 #include "free.h"
 
 static void spla_insert_free_block(splinter_alloc *spla_alloc, void *ptr, unsigned blck_align) {
+    assert(ptr != NULL);
+
     if (blck_align >= SPLA_PAGE_SHIFT) {
         size_t page_num = (size_t)1 << (blck_align - SPLA_PAGE_SHIFT);
         DBG_FN2(return_pages, ("0x%012lx", (size_t)ptr), ("%lu", page_num));
@@ -26,7 +28,9 @@ static void spla_insert_free_block(splinter_alloc *spla_alloc, void *ptr, unsign
     spla_avl_node *compacted =
         spla_avl_tree_insert(&spla_alloc->free_blocks[fl_idx], ptr, blck_align);
     SPLA_UNLOCK_ATOMIC;
-    return spla_insert_free_block(spla_alloc, compacted, blck_align + 1);
+    if (compacted != NULL) {
+        spla_insert_free_block(spla_alloc, compacted, blck_align + 1);
+    }
 #else // SPLA_AVL_FREE_LISTS
 
     char compact_first = MAX_ALIGN_OF(ptr) > blck_align;
@@ -64,8 +68,8 @@ static void spla_insert_free_block(splinter_alloc *spla_alloc, void *ptr, unsign
             return spla_insert_free_block(spla_alloc, ptr, blck_align + 1);
         }
 #if SPLA_TESTING
-        else if (((char *)*block < ptr && (char *)*block + blck_size > ptr)
-                 || (ptr < (char *)*block && ptr + blck_size > (void *)*block))
+        else if (((void *)*block < ptr && (void *)*block + blck_size > ptr)
+                 || (ptr < (void *)*block && ptr + blck_size > (void *)*block))
         {
             DBG_ERR2(-1, overlapping_free_blocks, ("0x%012lx..", (size_t)ptr),
                      ("0x%012lx..", (size_t)*block));
