@@ -21,6 +21,14 @@ static void spla_insert_free_block(splinter_alloc *spla_alloc, void *ptr, unsign
     size_t blck_size = (size_t)1 << blck_align;
     DBG_FN2(insert_free_block, ("0x%012lx", (size_t)ptr), ("0x%lx", blck_size));
 
+#if SPLA_AVL_FREE_LISTS
+    SPLA_LOCK_ATOMIC;
+    spla_avl_node *compacted =
+        spla_avl_tree_insert(&spla_alloc->free_blocks[fl_idx], ptr, blck_align);
+    SPLA_UNLOCK_ATOMIC;
+    return spla_insert_free_block(spla_alloc, compacted, blck_align + 1);
+#else // SPLA_AVL_FREE_LISTS
+
     char compact_first = MAX_ALIGN_OF(ptr) > blck_align;
 
 #if SPLA_SORT_COMPACT_TRIES != -1
@@ -75,6 +83,8 @@ static void spla_insert_free_block(splinter_alloc *spla_alloc, void *ptr, unsign
     (*block)->next = next_block;
     spla_check(spla_alloc);
     SPLA_UNLOCK_ATOMIC;
+
+#endif // SPLA_AVL_FREE_LISTS
 }
 
 void spla_free_area(splinter_alloc *spla_alloc, void *ptr, void *limit) {

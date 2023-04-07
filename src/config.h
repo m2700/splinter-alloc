@@ -1,10 +1,18 @@
 #pragma once
 
-#ifndef SPLA_MIN_ALIGNMENT_SHIFT
-#define SPLA_MIN_ALIGNMENT_SHIFT 3
+#ifndef SPLA_AVL_FREE_LISTS
+#define SPLA_AVL_FREE_LISTS 0
 #endif
 
-#if SPLA_MIN_ALIGNMENT_SHIFT < 3
+#ifndef SPLA_MIN_ALIGNMENT_SHIFT
+#if SPLA_AVL_FREE_LISTS
+#define SPLA_MIN_ALIGNMENT_SHIFT 6
+#else // SPLA_AVL_FREE_LISTS
+#define SPLA_MIN_ALIGNMENT_SHIFT 3
+#endif // SPLA_AVL_FREE_LISTS
+#endif // SPLA_MIN_ALIGNMENT_SHIFT
+
+#if SPLA_MIN_ALIGNMENT_SHIFT < 3 || (SPLA_AVL_FREE_LISTS && SPLA_MIN_ALIGNMENT_SHIFT < 6)
 #error "spla_block does not fit in the smallest free block"
 #endif
 

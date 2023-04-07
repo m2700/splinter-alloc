@@ -21,9 +21,16 @@ static void *spla_pop_free_block(splinter_alloc *spla_alloc, unsigned *fl_idx) {
         DBG_FN1(pop_free_block, ("0x%lx", FL_IDX_TO_BLCK_SIZE(*fl_idx)));
 
         SPLA_LOCK_ATOMIC;
+
+#if SPLA_AVL_FREE_LISTS
+        spla_avl_node *popped_block = spla_avl_tree_pop(block);
+#else  // SPLA_AVL_FREE_LISTS
         spla_block *popped_block = *block;
         *block = (*block)->next;
+#endif // SPLA_AVL_FREE_LISTS
+
         spla_check(spla_alloc);
+
         SPLA_UNLOCK_ATOMIC;
 
         return popped_block;

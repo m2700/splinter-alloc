@@ -7,13 +7,20 @@
 #include "bitidx.h"
 #include "config.h"
 
+#if SPLA_AVL_FREE_LISTS
+#include "avl.h"
+#endif // SPLA_AVL_FREE_LISTS
+
+#if SPLA_AVL_FREE_LISTS
+typedef spla_avl_tree spla_block;
+#else  // SPLA_AVL_FREE_LISTS
 typedef struct spla_block spla_block;
 struct spla_block {
     spla_block *next;
 };
+#endif // SPLA_AVL_FREE_LISTS
 
-#define SPLA_NUM_BLOCK_SIZES                                                   \
-    (SPLA_MAX_ALIGNMENT_SHIFT - SPLA_MIN_ALIGNMENT_SHIFT + 1)
+#define SPLA_NUM_BLOCK_SIZES (SPLA_MAX_ALIGNMENT_SHIFT - SPLA_MIN_ALIGNMENT_SHIFT + 1)
 
 typedef struct splinter_alloc {
     void *pallocator;
