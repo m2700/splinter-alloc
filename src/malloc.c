@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <splinter-alloc.h>
 
+#include "align.h"
 #include "alloc.h"
 #include "check.h"
 #include "config.h"

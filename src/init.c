@@ -2,6 +2,7 @@
 #include <splinter-alloc.h>
 #include <string.h>
 
+#include "align.h"
 #include "alloc.h"
 #include "config.h"
 #include "debug.h"

@@ -2,6 +2,7 @@
 #include <splinter-alloc.h>
 #include <sys/param.h>
 
+#include "align.h"
 #include "alloc.h"
 #include "check.h"
 #include "config.h"
@@ -27,8 +28,7 @@ static void spla_insert_free_block(splinter_alloc *spla_alloc, void *ptr, unsign
 #endif
 
     spla_block **block;
-    for (block = &spla_alloc->free_blocks[fl_idx]; *block != NULL;
-         block = &(*block)->next) {
+    for (block = &spla_alloc->free_blocks[fl_idx]; *block != NULL; block = &(*block)->next) {
 #if SPLA_SORT_COMPACT_TRIES != -1
         if (sort_compact_tries_left-- == 0) {
             break;
@@ -36,8 +36,7 @@ static void spla_insert_free_block(splinter_alloc *spla_alloc, void *ptr, unsign
 #endif
 
         if (!compact_first && (char *)*block + blck_size == ptr) {
-            DBG_FN2(block_compaction, ("0x%012lx..", (size_t)*block),
-                    ("0x%012lx..", (size_t)ptr));
+            DBG_FN2(block_compaction, ("0x%012lx..", (size_t)*block), ("0x%012lx..", (size_t)ptr));
 
             SPLA_LOCK_ATOMIC;
             ptr = *block;
@@ -47,8 +46,7 @@ static void spla_insert_free_block(splinter_alloc *spla_alloc, void *ptr, unsign
 
             return spla_insert_free_block(spla_alloc, ptr, blck_align + 1);
         } else if (compact_first && ptr + blck_size == *block) {
-            DBG_FN2(block_compaction, ("0x%012lx..", (size_t)ptr),
-                    ("0x%012lx..", (size_t)*block));
+            DBG_FN2(block_compaction, ("0x%012lx..", (size_t)ptr), ("0x%012lx..", (size_t)*block));
 
             SPLA_LOCK_ATOMIC;
             *block = (*block)->next;
@@ -58,13 +56,15 @@ static void spla_insert_free_block(splinter_alloc *spla_alloc, void *ptr, unsign
             return spla_insert_free_block(spla_alloc, ptr, blck_align + 1);
         }
 #if SPLA_TESTING
-        else if (((char *)*block < ptr && (char *)*block + blck_size > ptr) ||
-                 (ptr < (char *)*block && ptr + blck_size > (void *)*block)) {
+        else if (((char *)*block < ptr && (char *)*block + blck_size > ptr)
+                 || (ptr < (char *)*block && ptr + blck_size > (void *)*block))
+        {
             DBG_ERR2(-1, overlapping_free_blocks, ("0x%012lx..", (size_t)ptr),
                      ("0x%012lx..", (size_t)*block));
         }
 #endif
-        else if ((void *)*block > ptr) {
+        else if ((void *)*block > ptr)
+        {
             break;
         }
     }
