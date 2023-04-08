@@ -301,9 +301,15 @@ int main(int argc, char const *argv[]) {
         page_allocator *pallocator = page_allocator_new(palloc_size);
         splinter_alloc *spla_alloc = spla_init_alloc(pallocator, 0, palloc, pfree);
 
-        // unsigned block_count = randint(1, pallocator->free_size / 24);
+#if SPLA_AVL_FREE_LISTS
+        // unsigned block_count = randint(1, pallocator->free_size / 64);
+        unsigned block_count_half = randint(1, pallocator->free_size / 64 / 2);
+        unsigned block_count_p1 = randint(1, pallocator->free_size + (1ul << 12) / 64);
+#else  // SPLA_AVL_FREE_LISTS
+       // unsigned block_count = randint(1, pallocator->free_size / 24);
         unsigned block_count_half = randint(1, pallocator->free_size / 24 / 2);
         unsigned block_count_p1 = randint(1, pallocator->free_size + (1ul << 12) / 24);
+#endif // SPLA_AVL_FREE_LISTS
 
         single_alloc_test(spla_alloc, pallocator);
         spla_clear(pallocator, spla_alloc, palloc_size);

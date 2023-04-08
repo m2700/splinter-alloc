@@ -39,6 +39,8 @@ static void *spla_pop_free_block(splinter_alloc *spla_alloc, unsigned *fl_idx) {
 
 static void *spla_malloc_area(splinter_alloc *spla_alloc, size_t *size) {
     assert(*size > 0);
+    assert(*size >= SPLA_MIN_BLOCK_SIZE);
+
     unsigned blck_align = GE_POW2_SHIFT(*size);
     unsigned fl_idx = BLCK_ALIGN_TO_FL_IDX(blck_align);
 
@@ -63,9 +65,10 @@ void *spla_malloc(splinter_alloc *spla_alloc, size_t size) {
     }
 
     assert(sizeof(size_t) <= (size_t)1 << SPLA_MIN_ALIGNMENT_SHIFT);
-    size = ALIGN_UP(size, SPLA_MIN_ALIGNMENT_SHIFT);
 
-    const size_t min_alloc_size = size + sizeof(size_t);
+    const size_t min_alloc_size = ALIGN_UP(size + sizeof(size_t), SPLA_MIN_ALIGNMENT_SHIFT);
+    size = min_alloc_size - sizeof(size_t);
+
     size_t alloc_size = min_alloc_size;
     void *ptr = spla_malloc_area(spla_alloc, &alloc_size);
     if (ptr == NULL) {
@@ -99,9 +102,10 @@ void *spla_memalign(splinter_alloc *spla_alloc, size_t align, size_t size) {
     }
 
     assert(sizeof(size_t) <= (size_t)1 << SPLA_MIN_ALIGNMENT_SHIFT);
-    size = ALIGN_UP(size, SPLA_MIN_ALIGNMENT_SHIFT);
 
     size_t alloc_size = ALIGN_UP_SIZE(sizeof(size_t), align) + ALIGN_UP_SIZE(size, align);
+    alloc_size = ALIGN_UP(alloc_size, SPLA_MIN_ALIGNMENT_SHIFT);
+
     void *alloc_ptr = spla_malloc_area(spla_alloc, &alloc_size);
     if (alloc_ptr == NULL) {
         return NULL;
@@ -111,17 +115,23 @@ void *spla_memalign(splinter_alloc *spla_alloc, size_t align, size_t size) {
     void *ptr = ALIGN_UP_SIZE(alloc_ptr + sizeof(size_t), align);
     size_t *size_ptr = (size_t *)ptr - 1;
 
+    void *min_limit = ALIGN_UP(ptr + size, SPLA_MIN_ALIGNMENT_SHIFT);
+
+    size = min_limit - ptr;
+
 #if !SPLA_ALLOCATE_EXACT
-    const size_t post_ptr_alloc_size_2p = GE_POW2((size_t)(limit - ptr));
-    if (ptr + post_ptr_alloc_size_2p <= limit) {
-        size = post_ptr_alloc_size_2p;
+    const size_t min_alloc_size_2p = GE_POW2((size_t)(min_limit - alloc_ptr));
+    if (min_alloc_size_2p <= alloc_size) {
+        size = min_alloc_size_2p - (ptr - alloc_ptr);
     }
 #endif
 
     *size_ptr = size;
 
-    if (alloc_ptr < (void *)size_ptr) {
-        spla_free_area(spla_alloc, alloc_ptr, size_ptr);
+    void *align_down_size_ptr = ALIGN_DOWN((void *)size_ptr, SPLA_MIN_ALIGNMENT_SHIFT);
+
+    if (alloc_ptr < align_down_size_ptr) {
+        spla_free_area(spla_alloc, alloc_ptr, align_down_size_ptr);
     }
     if (ptr + size < limit) {
         spla_free_area(spla_alloc, ptr + size, limit);

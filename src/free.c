@@ -27,6 +27,7 @@ static void spla_insert_free_block(splinter_alloc *spla_alloc, void *ptr, unsign
     SPLA_LOCK_ATOMIC;
     spla_avl_node *compacted =
         spla_avl_tree_insert(&spla_alloc->free_blocks[fl_idx], ptr, blck_align);
+    spla_check(spla_alloc);
     SPLA_UNLOCK_ATOMIC;
     if (compacted != NULL) {
         spla_insert_free_block(spla_alloc, compacted, blck_align + 1);
