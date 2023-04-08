@@ -12,7 +12,7 @@
 void spla_alloc_free_fifo(splinter_alloc *spla_alloc, size_t num_allocs, size_t block_size) {
     printf("spla_alloc_free_fifo(num_allocs: %lu, block_size: %lu):\n", num_allocs, block_size);
 
-    void *ptrs[num_allocs];
+    void **ptrs = malloc(sizeof(void *) * num_allocs);
     struct timespec tp_s, tp_e;
 
     clock_gettime(CLOCK_MONOTONIC, &tp_s);
@@ -33,7 +33,7 @@ void spla_alloc_free_fifo(splinter_alloc *spla_alloc, size_t num_allocs, size_t 
 void spla_alloc_free_lifo(splinter_alloc *spla_alloc, size_t num_allocs, size_t block_size) {
     printf("spla_alloc_free_lifo(num_allocs: %lu, block_size: %lu):\n", num_allocs, block_size);
 
-    void *ptrs[num_allocs];
+    void **ptrs = malloc(sizeof(void *) * num_allocs);
     struct timespec tp_s, tp_e;
 
     clock_gettime(CLOCK_MONOTONIC, &tp_s);
@@ -54,7 +54,7 @@ void spla_alloc_free_lifo(splinter_alloc *spla_alloc, size_t num_allocs, size_t 
 void spla_alloc_free_random(splinter_alloc *spla_alloc, size_t num_allocs, size_t block_size) {
     printf("spla_alloc_free_random(num_allocs: %lu, block_size: %lu):\n", num_allocs, block_size);
 
-    void *ptrs[num_allocs];
+    void **ptrs = malloc(sizeof(void *) * num_allocs);
     struct timespec tp_s, tp_e;
 
     clock_gettime(CLOCK_MONOTONIC, &tp_s);
@@ -82,7 +82,7 @@ void spla_alloc_free_random(splinter_alloc *spla_alloc, size_t num_allocs, size_
 void spla_alloc_scale(splinter_alloc *spla_alloc, size_t num_allocs, size_t block_size) {
     printf("spla_alloc_scale(num_allocs: %lu, block_size: %lu):\n", num_allocs, block_size);
 
-    void *ptrs[num_allocs];
+    void **ptrs = malloc(sizeof(void *) * num_allocs);
     struct timespec tps_a[num_allocs], tpe_a[num_allocs];
 
     for (size_t i = 0; i < num_allocs; i++) {
