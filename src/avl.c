@@ -464,6 +464,8 @@ void spla_avl_remove_last(spla_avl_node *last) {
     list_remove(last);
 }
 
+#if SPLA_TESTING
+
 static void dump(spla_avl_node *root) {
     if (root == NULL) {
         printf("NULL\n");
@@ -478,8 +480,6 @@ static void dump(spla_avl_node *root) {
     printf("  next=0x%012lx\n", (size_t)root->next);
     printf("  prev=0x%012lx\n", (size_t)root->prev);
 }
-
-#if SPLA_TESTING
 
 #define assert_dump(expr)                                                                          \
     if (!(expr)) {                                                                                 \
