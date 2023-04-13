@@ -12,7 +12,7 @@
 #endif // SPLA_AVL_FREE_LISTS
 #endif // SPLA_MIN_ALIGNMENT_SHIFT
 
-#if SPLA_MIN_ALIGNMENT_SHIFT < 3 || (SPLA_AVL_FREE_LISTS && SPLA_MIN_ALIGNMENT_SHIFT < 6)
+#if SPLA_MIN_ALIGNMENT_SHIFT < 3 || (SPLA_AVL_FREE_LISTS && SPLA_MIN_ALIGNMENT_SHIFT < 5)
 #error "spla_block does not fit in the smallest free block"
 #endif
 
